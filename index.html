@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>My Page</title> 
+
+    <style type = "text/css">
+    
+    #recImg  { height:100px;}
+    #playImg { height:80px; visibility:hidden; }
+    
+    </style>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+	<script src="phonegap.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+
+        mode = "";
+      document.addEventListener("deviceready", onDeviceReady, false);
+    
+        $(document).bind('pageinit', function () {
+           $("#recBtn").bind("click", function (event, ui) { recordAudio(); });
+        });
+
+    // Record audio
+    // 
+       function recordAudio() {
+           if (mode == "record") return;
+           mode = "record";
+           d = new Date();
+           ms = d.getTime();
+           sec = parseInt(ms / 1000);
+           src = "myrecording." + sec + ".mp3";
+           document.getElementById("recImg").src = "recordDisabled.png";
+           $("#recBtn").attr("disabled", true).button("refresh");
+
+
+       mediaRec = new Media(src, onSuccess, onError);
+
+        // Record audio
+       mediaRec.startRecord();
+
+        // Stop recording after 10 sec
+        var recTime = 0;
+        var recInterval = setInterval(function() {
+            recTime = recTime + 1;
+            setAudioPosition(recTime + " sec");
+            if (recTime >= 10) {
+                clearInterval(recInterval);
+                mediaRec.stopRecord();
+                setAudioPosition("stopped");
+                document.getElementById("playImg").style.setProperty("visibility", "visible");
+                document.getElementById("recImg").src = "record.png";
+                $("#recBtn").attr("enabled", true).button("refresh");
+            }
+        }, 1000);
+    }
+
+    function play() {
+        if (mode == "play") return;
+        mode = "play";
+        mediaRec2 = new Media(src, onSuccessPlay, onError);
+	    setAudioPosition("now Playing " + src);
+	    mediaRec2.play();
+	}
+
+	function onSuccessPlay() {
+	    setAudioPosition("Play Ended ");
+	    mode = "";
+    }
+	
+    // PhoneGap is ready
+    //
+    function onDeviceReady() {
+
+    }
+
+    // onSuccess Callback
+    //
+    function onSuccess() {
+        //alert("recordAudio():Audio Success");
+    }
+
+    // onError Callback 
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' + 
+              'message: ' + error.message + '\n');
+    }
+
+    // Set audio position
+    // 
+    function setAudioPosition(position) {
+        document.getElementById('audio_position').innerHTML = position;
+    }
+
+		
+		
+    </script>
+
+</head> 
+<body> 
+
+    <div data-role="page" data-theme =  "a">
+        <div data-role="header">
+            <h1> Recording</h1>
+        </div>
+        <!-- /header -->
+        <div data-role="content">
+              <input type="button" data-role="button" value="Start Recording" id = "recBtn"  />
+              <div style = "text-align:center">
+              <img src="record.png" id = "recImg" onclick = "recordAudio()" />
+			  <p id="audio_position"></p>
+              <img src="play.png" id = "playImg" onclick = "play();" />
+              </div>
+        </div> <!-- /content -->
+    </div>  <!-- /page -->
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
